@@ -16,3 +16,7 @@ Thumbs.db
 
 # Archivos temporales de Docker
 .docker/
+
+# Documentos generados
+*.docx
+*.pdf
