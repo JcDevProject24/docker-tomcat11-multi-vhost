@@ -50,7 +50,172 @@ Agregar al archivo `/etc/hosts`:
 | **Manager**         | `http://localhost:8080/manager/html`      | 8080   | HTTP      |
 | **Host Manager**    | `http://localhost:8080/host-manager/html` | 8080   | HTTP      |
 
+## 📡 Configuración de Acceso Estándar (Puertos 80 y 443)
+
+> **Nota:** Esta configuración es **opcional** y **no está implementada** en la versión principal del proyecto. Se documenta como alternativa para entornos que requieran URLs sin especificación de puertos.
+
 ---
+
+### Contexto
+
+Para que el servidor sea accesible mediante URLs limpias (sin especificar puertos como `:8080`), es necesaria una reconfiguración integral en tres niveles:
+
+1. **Orquestador** (Docker Compose)
+2. **Servidor de aplicaciones** (Tomcat)
+3. **Sistema operativo** (Ubuntu)
+
+---
+
+### 1️⃣ Reajuste del Mapeo de Puertos (Port Forwarding)
+
+En el archivo `docker-compose.yml`, se modifican los puertos mapeados para usar los estándares de HTTP/HTTPS:
+
+```yaml
+ports:
+  - "80:8080" # HTTP estándar → Tomcat HTTP
+  - "443:8443" # HTTPS estándar → Tomcat HTTPS
+  - "8009:8009" # AJP (sin cambios)
+```
+
+**¿Qué logra esto?**
+
+- El usuario accede con `http://sitio1.local` (sin puerto)
+- Docker redirige internamente al puerto 8080 de Tomcat
+- Tomcat procesa la petición sin saber que externamente es el puerto 80
+
+---
+
+### 2️⃣ Sincronización del server.xml
+
+#### Redirección HTTPS
+
+```xml
+<Connector port="8080" protocol="HTTP/1.1"
+    redirectPort="8443" />
+```
+
+**Funcionamiento:**
+
+- Si una petición HTTP requiere seguridad (ej: acceso al Manager), Tomcat redirige internamente a `8443`
+- Docker traduce esa respuesta al puerto `443` externo
+- El navegador recibe una redirección a `https://sitio1.local` (sin puerto visible)
+
+#### Optimización de Conectores (Opcional)
+
+Con Virtual Hosts correctamente configurados, **no es necesario** mantener múltiples conectores HTTP (8080 y 8081):
+
+```xml
+<!-- UN SOLO conector HTTP gestiona todos los hosts virtuales -->
+<Connector port="8080" protocol="HTTP/1.1" ... />
+
+<!-- Los Virtual Hosts se diferencian por nombre de dominio -->
+<Host name="sitio1.local" ... />
+<Host name="sitio2.local" ... />
+```
+
+**Ventaja:** Reducción de consumo de recursos (menos threads, menos sockets).
+
+---
+
+### 3️⃣ Resolución de Conflictos en el Sistema Operativo
+
+#### Puertos Privilegiados (<1024)
+
+En Linux, solo `root` puede usar puertos por debajo del 1024. Para que Docker los use:
+
+```bash
+# Otorgar permisos al daemon de Docker (ya configurado por defecto)
+sudo setcap 'cap_net_bind_service=+ep' /usr/bin/dockerd
+```
+
+#### Liberar Puerto 80 (si está ocupado)
+
+```bash
+# Identificar proceso usando el puerto 80
+sudo lsof -i :80
+
+# Detener proceso específico
+sudo fuser -k 80/tcp
+
+# Verificar que está libre
+sudo netstat -tuln | grep :80
+```
+
+**Causas comunes de conflicto:**
+
+- Apache HTTP Server (`apache2`)
+- Nginx
+- Contenedores Docker huérfanos
+
+---
+
+### 4️⃣ Tabla de Acceso con Puertos Estándar
+
+| Servicio                 | URL                                   | Puerto | Protocolo |
+| ------------------------ | ------------------------------------- | ------ | --------- |
+| **Sitio 1**              | `http://sitio1.local/hello`           | 80     | HTTP      |
+| **Sitio 1 (HTTPS)**      | `https://sitio1.local/hello`          | 443    | HTTPS     |
+| **Sitio 2**              | `http://sitio2.local/hello`           | 80     | HTTP      |
+| **Sitio 2 (HTTPS)**      | `https://sitio2.local/hello`          | 443    | HTTPS     |
+| **Manager**              | `http://localhost/manager/html`       | 80     | HTTP      |
+| **Manager (HTTPS)**      | `https://localhost/manager/html`      | 443    | HTTPS     |
+| **Host Manager**         | `http://localhost/host-manager/html`  | 80     | HTTP      |
+| **Host Manager (HTTPS)** | `https://localhost/host-manager/html` | 443    | HTTPS     |
+
+---
+
+### ⚙️ Implementación Paso a Paso
+
+#### 1. Modificar `docker-compose.yml`
+
+```yaml
+services:
+  tomcat:
+    build: .
+    container_name: tomcat-jorge-ud3
+    ports:
+      - "80:8080"
+      - "443:8443"
+      - "8009:8009"
+    # ... resto de la configuración
+```
+
+#### 2. Reconstruir y reiniciar
+
+```bash
+docker compose down
+docker compose up --build -d
+```
+
+#### 3. Verificar acceso
+
+```bash
+curl http://sitio1.local/hello
+curl -k https://sitio1.local/hello  # -k ignora certificado autofirmado
+```
+
+---
+
+### ⚠️ Consideraciones
+
+**Ventajas:**
+
+- ✅ URLs profesionales sin puertos visibles
+- ✅ Compatibilidad con expectativas de usuarios finales
+- ✅ Facilita integración con DNS públicos
+
+**Desventajas:**
+
+- ⚠️ Requiere permisos elevados en el host
+- ⚠️ Posibles conflictos con servicios existentes (Apache, Nginx)
+- ⚠️ Complejidad adicional en troubleshooting
+
+**Recomendación:**
+
+- **Desarrollo:** Usar puertos no privilegiados (8080, 8443) como en la versión principal
+- **Producción:** Implementar proxy reverso (Nginx/Apache) delante de Tomcat en lugar de mapeo directo de puertos
+
+## **Estado:** Fin Configuración opcional no incluida en entrega principal
 
 ## 🔐 Credenciales de Administración
 
