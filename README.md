@@ -176,8 +176,8 @@ Para garantizar la portabilidad y permitir la replicación del entorno en difere
 Cualquier desarrollador puede replicar esta infraestructura completa en segundos:
 
 ```bash
-git clone [https://github.com/tu-usuario/nombre-repo.git](https://github.com/tu-usuario/nombre-repo.git)
-cd nombre-repo
+git clone https://github.com/JcDevProject24/docker-tomcat11-multi-vhost.git
+cd docker-tomcat11-multi-vhost.git
 docker-compose up -d
 ```
 
