@@ -1,0 +1,27 @@
+services:
+  tomcat:
+    build: .
+    container_name: tomcat-jorge-ud3
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+      - "8443:8443"
+      - "8009:8009"
+    environment:
+      JAVA_OPTS: "-Xmx512m -Xms256m"
+      CATALINA_OPTS: "-Dfile.encoding=UTF-8"
+    volumes:
+      - ./server.xml:/opt/tomcat/conf/server.xml
+      - ./tomcat-users.xml:/opt/tomcat/conf/tomcat-users.xml
+      # Sincroniza el context para el Manager
+      - ./context.xml:/opt/tomcat/webapps/manager/META-INF/context.xml
+      # Sincroniza el context para el Host-Manager (Requisito Fase 2.1)
+      - ./context.xml:/opt/tomcat/webapps/host-manager/META-INF/context.xml
+      - ./logs:/opt/tomcat/logs
+    restart: unless-stopped
+    networks:
+      - tomcat-network
+
+networks:
+  tomcat-network:
+    driver: bridge

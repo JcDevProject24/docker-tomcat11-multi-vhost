@@ -1,0 +1,64 @@
+{
+  // Java
+  "java.version": "21",
+  "java.configuration.runtimes": [
+    {
+      "name": "JavaSE-21",
+      "path": "/usr/lib/jvm/java-21-openjdk-amd64",
+      "default": true
+    }
+  ],
+
+  // Maven
+  "maven.executable.preferMavenWrapper": true,
+  "maven.settingsFile": "~/.m2/settings.xml",
+  "maven.terminal.customEnv": [
+    {
+      "name": "MAVEN_OPTS",
+      "value": "-Xmx1024m"
+    }
+  ],
+
+  // Compilación
+  "java.compile.nullAnalysis.mode": "automatic",
+  "java.saveActions.organizeImports": true,
+  "java.format.settings.url": "~/.config/java-formatter.xml",
+
+  // Depuración
+  "java.debug.settings.showStaticVariables": true,
+  "java.debug.settings.showHex": true,
+  "java.debug.settings.hotCodeReplace": "auto",
+
+  // Editor
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.fontSize": 14,
+  "editor.fontFamily": "'Fira Code', 'Courier New', monospace",
+  "[java]": {
+    "editor.defaultFormatter": "redhat.java",
+    "editor.formatOnSave": true,
+    "editor.formatOnPaste": true
+  },
+  "[xml]": {
+    "editor.defaultFormatter": "redhat.vscode-xml"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+
+  // Terminal
+  "terminal.integrated.shellArgs.linux": ["--login"],
+  "terminal.integrated.defaultProfile.linux": "bash",
+
+  // Git
+  "git.autofetch": true,
+  "git.confirmSync": false,
+  "gitGraph.repository.local.autofetch": true,
+
+  // Rendimiento
+  "files.watcherExclude": {
+    "**/target": true,
+    "**/.git/objects/**": true,
+    "**/.git/subtree-cache/**": true
+  }
+}

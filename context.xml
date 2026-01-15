@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Context antiResourceLocking="false" privileged="true">
+    <!-- Restricción de acceso al Manager (solo localhost o red específica) -->
+    <Valve className="org.apache.catalina.valves.RemoteAddrValve"
+        allow="^.*$" />
+    <!-- Gestor de recursos -->
+
+    <Manager className="org.apache.catalina.session.PersistentManager">
+        <Store className="org.apache.catalina.session.FileStore" />
+    </Manager>
+    <!-- Límites de recursos por aplicación -->
+
+    <Resources cachingAllowed="true"
+        cacheMaxSize="100000"
+        cacheTtl="5000" />
+
+</Context>

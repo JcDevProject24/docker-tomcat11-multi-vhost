@@ -1,0 +1,18 @@
+# Logs del sistema y de Tomcat
+logs/
+*.log
+*.txt
+
+# Binarios de Java y carpetas de Maven
+target/
+*.war
+*.jar
+*.class
+
+# Archivos de entorno y SO
+.DS_Store
+Thumbs.db
+.env
+
+# Archivos temporales de Docker
+.docker/

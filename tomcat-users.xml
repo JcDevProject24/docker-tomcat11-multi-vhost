@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tomcat-users xmlns="http://tomcat.apache.org/xml"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://tomcat.apache.org/xml tomcat-users.xsd"
+    version="1.0">
+
+    <!-- Definir roles y permisos (admin, manager, viewer) -->
+    <role rolename="manager-gui" />
+    <role rolename="manager-script" />
+    <role rolename="manager-jmx" />
+    <role rolename="manager-status" />
+    <role rolename="admin-gui" />
+    <role rolename="admin-script" />
+    <role rolename="viewer" />
+
+    <!-- Implementar gestión de usuarios (usuario administrador) -->
+    <user username="admin"
+        password="admin123"
+        roles="manager-gui,manager-script,manager-jmx,manager-status,admin-gui,admin-script" />
+
+    <!-- Usuario manager -->
+    <user username="manager"
+        password="manager123"
+        roles="manager-gui,manager-status" />
+
+    <!-- Usuario viewer -->
+    <user username="viewer"
+        password="viewer123"
+        roles="viewer,manager-status" />
+
+</tomcat-users>
